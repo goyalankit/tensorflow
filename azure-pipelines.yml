@@ -13,5 +13,5 @@ steps:
 - script: ./tensorflow/tools/ci_build/ci_build.sh CPU bazel build
   displayName: 'Build tensorflow'
 
-- script: ./tensorflow/tools/ci_build/ci_build.sh CPU bazel test
+- script: ./tensorflow/tools/ci_build/ci_build.sh CPU bazel test //tensorflow/python/keras:callbacks_test
   displayName: 'Test tensorflow'
