@@ -1,0 +1,37 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- master
+
+pool:
+  vmImage: 'ubuntu-latest'
+jobs:
+- job: build_tensorflow
+  strategy:
+    maxParallel: 2
+    matrix: 
+      GPU:
+        processor: GPU
+        mkl: --config=opt --config=cuda
+      CPU:
+        processor: CPU
+        mkl: ""
+      CPU_MKL:
+        processor: CPU
+        mkl: --config=mkl
+  timeoutInMinutes: 360
+  displayName: Build and test tensorflow
+  steps:
+  - bash: >-
+      ./tensorflow/tools/ci_build/ci_build.sh $(processor) bazel build $(mkl) 
+      --keep_going --verbose_failures --test_output=all
+      //tensorflow/java:tensorflow //tensorflow/java:libtensorflow_jni 
+    displayName: Build tensorflow java
+  - bash: >-
+      ./tensorflow/tools/ci_build/ci_build.sh $(processor) bazel build $(mkl)
+      --keep_going --verbose_failures --test_output=all
+      //tensorflow/tools/pip_package:build_pip_package
+    displayName: Build tensorflow pip package
