@@ -10,27 +10,26 @@ pool: AzurePool
 jobs:
 - job: build_tensorflow
   strategy:
-    maxParallel: 2
+    maxParallel: 3
     matrix: 
-      GPU:
-        processor: GPU
-        mkl: --config=opt --config=cuda
       CPU:
         processor: CPU
         mkl: ""
+        lang: ['//tensorflow/java:tensorflow //tensorflow/java:libtensorflow_jni', '//tensorflow/tools/pip_package:build_pip_package']
       CPU_MKL:
         processor: CPU
         mkl: --config=mkl
+        lang: ['//tensorflow/java:tensorflow //tensorflow/java:libtensorflow_jni', '//tensorflow/tools/pip_package:build_pip_package']
   timeoutInMinutes: 360
   displayName: Build and test tensorflow
   steps:
   - bash: >-
       ./tensorflow/tools/ci_build/ci_build.sh $(processor) bazel build $(mkl) 
       --keep_going --verbose_failures --test_output=all
-      //tensorflow/java:tensorflow //tensorflow/java:libtensorflow_jni 
+      $(lang)
     displayName: Build tensorflow java
   - bash: >-
       ./tensorflow/tools/ci_build/ci_build.sh $(processor) bazel build $(mkl)
       --keep_going --verbose_failures --test_output=all
-      //tensorflow/tools/pip_package:build_pip_package
+      $(lang)
     displayName: Build tensorflow pip package
