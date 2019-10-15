@@ -21,7 +21,7 @@ jobs:
         mkl: --config=mkl
         lang: '//tensorflow/java:tensorflow //tensorflow/java:libtensorflow_jni'
   timeoutInMinutes: 360
-  displayName: Build and test tensorflow $(processor) $(mkl) $(lang)
+  displayName: Build and test tensorflow
   steps:
   - bash: >-
       ./tensorflow/tools/ci_build/ci_build.sh $(processor) bazel build $(mkl) 
@@ -42,7 +42,7 @@ jobs:
         mkl: --config=mkl
         lang: '//tensorflow/tools/pip_package:build_pip_package'
   timeoutInMinutes: 360
-  displayName: Build and test tensorflow $(processor) $(mkl) $(lang)
+  displayName: Build and test tensorflow
   steps:
   - bash: >-
       ./tensorflow/tools/ci_build/ci_build.sh $(processor) bazel build $(mkl) 
