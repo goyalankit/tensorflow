@@ -1,0 +1,13 @@
+name: CI
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v1
+    - name: Build tensorflow
+      run: ./tensorflow/tools/ci_build/ci_build.sh CPU bazel build --config=mkl --keep_going --verbose_failures --test_output=all //tensorflow/java:tensorflow //tensorflow/java:libtensorflow_jni
