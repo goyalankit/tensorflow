@@ -21,39 +21,31 @@ jobs:
         mkl: --config=mkl
         lang: '//tensorflow/java:tensorflow //tensorflow/java:libtensorflow_jni'
   timeoutInMinutes: 360
-  displayName: Build and test tensorflow
+  displayName: Build and test tensorflow $(processor) $(mkl) $(lang)
   steps:
   - bash: >-
       ./tensorflow/tools/ci_build/ci_build.sh $(processor) bazel build $(mkl) 
       --keep_going --verbose_failures --test_output=all
       $(lang)
-    displayName: Build and tensorflow $(processor) $(mkl) $(lang)
+    displayName: Build and test tensorflow
 
 - job: build_tensorflow_pip
   strategy:
     maxParallel: 3
     matrix: 
-      CPU_JAVA:
-        processor: CPU
-        mkl: ""
-        lang: '//tensorflow/java:tensorflow //tensorflow/java:libtensorflow_jni'
       CPU_PIP:
         processor: CPU
         mkl: ""
         lang: '//tensorflow/tools/pip_package:build_pip_package'
-      CPU_JAVA_MKL:
-        processor: CPU
-        mkl: --config=mkl
-        lang: '//tensorflow/java:tensorflow //tensorflow/java:libtensorflow_jni'
       CPU_PIP_MKL:
         processor: CPU
         mkl: --config=mkl
         lang: '//tensorflow/tools/pip_package:build_pip_package'
   timeoutInMinutes: 360
-  displayName: Build and test tensorflow
+  displayName: Build and test tensorflow $(processor) $(mkl) $(lang)
   steps:
   - bash: >-
       ./tensorflow/tools/ci_build/ci_build.sh $(processor) bazel build $(mkl) 
       --keep_going --verbose_failures --test_output=all
       $(lang)
-    displayName: Build and tensorflow $(processor) $(mkl) $(lang)
+    displayName: Build and test tensorflow
