@@ -12,14 +12,22 @@ jobs:
   strategy:
     maxParallel: 3
     matrix: 
-      CPU:
+      CPU_JAVA:
         processor: CPU
         mkl: ""
-        lang: ['//tensorflow/java:tensorflow //tensorflow/java:libtensorflow_jni', '//tensorflow/tools/pip_package:build_pip_package']
-      CPU_MKL:
+        lang: '//tensorflow/java:tensorflow //tensorflow/java:libtensorflow_jni'
+      CPU_PIP:
+        processor: CPU
+        mkl: ""
+        lang: '//tensorflow/tools/pip_package:build_pip_package'
+      CPU_JAVA_MKL:
         processor: CPU
         mkl: --config=mkl
-        lang: ['//tensorflow/java:tensorflow //tensorflow/java:libtensorflow_jni', '//tensorflow/tools/pip_package:build_pip_package']
+        lang: '//tensorflow/java:tensorflow //tensorflow/java:libtensorflow_jni'
+      CPU_PIP_MKL:
+        processor: CPU
+        mkl: --config=mkl
+        lang: '//tensorflow/tools/pip_package:build_pip_package'
   timeoutInMinutes: 360
   displayName: Build and test tensorflow
   steps:
