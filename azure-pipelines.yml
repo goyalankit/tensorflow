@@ -28,12 +28,13 @@ jobs:
       --keep_going --verbose_failures --test_output=all
       $(lang)
     displayName: Build and test tensorflow
-  - task: CopyFiles@1
+  - task: CopyFiles@2
     inputs:
+      SourceFolder: $(Build.SourcesDirectory)
       Contents: |
-        'bazel-bin/tensorflow/java/libtensorflow.jar'
-        'bazel-bin/tensorflow/java/libtensorflow_jni.so'
-        'bazel-bin/tensorflow/libtensorflow_framework.so.*'
+        '*/bazel-bin/tensorflow/java/libtensorflow.jar'
+        '*/bazel-bin/tensorflow/java/libtensorflow_jni.so'
+        
       TargetFolder: $(Build.ArtifactStagingDirectory)/artifacts
 
 
