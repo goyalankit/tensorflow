@@ -29,8 +29,9 @@ jobs:
       $(lang)
     displayName: Build and test tensorflow
   - bash: >-
-      cp 'bazel-bin/tensorflow/java/libtensorflow.jar' $(Build.ArtifactStagingDirectory)/artifacts
-      cp '*/bazel-bin/tensorflow/java/libtensorflow_jni.so' $(Build.ArtifactStagingDirectory)
+      cp 'bazel-bin/tensorflow/java/libtensorflow.jar' $(Build.ArtifactStagingDirectory)
+      cp 'bazel-bin/tensorflow/java/libtensorflow_jni.so' $(Build.ArtifactStagingDirectory)      
+
   - task: PublishBuildArtifacts@1
     inputs:
       pathToPublish: $(Build.ArtifactStagingDirectory)
