@@ -6,7 +6,7 @@
 trigger:
 - master
 
-pool: AzurePool
+pool: Default
 jobs:
 - job: build_tensorflow_java
   strategy:
