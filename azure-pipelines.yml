@@ -28,15 +28,13 @@ jobs:
       --keep_going --verbose_failures --test_output=all
       $(lang)
     displayName: Build and test tensorflow
-  - task: CopyFiles@2
+  - bash: >-
+      cp 'bazel-bin/tensorflow/java/libtensorflow.jar' $(Build.ArtifactStagingDirectory)/artifacts
+      cp '*/bazel-bin/tensorflow/java/libtensorflow_jni.so' $(Build.ArtifactStagingDirectory)
+  - task: PublishBuildArtifacts@1
     inputs:
-      SourceFolder: $(Build.SourcesDirectory)
-      Contents: |
-        '*/bazel-bin/tensorflow/java/libtensorflow.jar'
-        '*/bazel-bin/tensorflow/java/libtensorflow_jni.so'
-        
-      TargetFolder: $(Build.ArtifactStagingDirectory)/artifacts
-
+      pathToPublish: $(Build.ArtifactStagingDirectory)
+      artifactName: 'tensorflow_$(processor)_$(Build.BuildId)'
 
 # - job: build_tensorflow_pip
 #   strategy:
