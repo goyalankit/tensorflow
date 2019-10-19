@@ -22,16 +22,6 @@ jobs:
         lang: java
       python:
         lang: python
-
-
-      # CPU_JAVA:
-      #   processor: CPU
-      #   mkl: ""
-      #   lang: '//tensorflow/java:tensorflow //tensorflow/java:libtensorflow_jni'
-      # CPU_JAVA_MKL:
-      #   processor: CPU
-      #   mkl: --config=mkl
-      #   lang: '//tensorflow/java:tensorflow //tensorflow/java:libtensorflow_jni'
   timeoutInMinutes: 360
   displayName: Build and test tensorflow
   steps:
