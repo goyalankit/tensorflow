@@ -25,9 +25,6 @@ jobs:
   timeoutInMinutes: 360
   displayName: Build and test tensorflow
   steps:
-  # - bash:    
-  #     cp /opt/linkedin/jdk-8u172-linux-x64.rpm $(Build.SourcesDirectory)/li/docker
-  #   displayName: Copy the jdk to a docker context
   - bash: sudo docker build /opt/linkedin/docker/ -t tf
     displayName: Build Docker Image
   - bash: mkdir -p $(Build.SourcesDirectory)/output_artifacts
@@ -57,6 +54,3 @@ jobs:
       changeLogCompareToRelease: 'lastFullRelease'
       changeLogType: 'commitBased'
       assets: '$(Build.ArtifactStagingDirectory)/*'
-
-
-
