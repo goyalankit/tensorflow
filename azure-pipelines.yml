@@ -1,0 +1,62 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- master
+
+variables:
+  MajorVersion: 1
+  MinorVersion: 0.0
+  InitialReleaseTagNumber: 1
+  IncrementReleaseTagNumber: $[counter(variables['InitialReleaseTagNumber'], 0)]
+
+pool: AzurePool
+jobs:
+- job: build_tensorflow_java
+  strategy:
+    maxParallel: 3
+    matrix: 
+      java: 
+        lang: java
+      python:
+        lang: python
+  timeoutInMinutes: 360
+  displayName: Build and test tensorflow
+  steps:
+  # - bash:    
+  #     cp /opt/linkedin/jdk-8u172-linux-x64.rpm $(Build.SourcesDirectory)/li/docker
+  #   displayName: Copy the jdk to a docker context
+  - bash: sudo docker build /opt/linkedin/docker/ -t tf
+    displayName: Build Docker Image
+  - bash: mkdir -p $(Build.SourcesDirectory)/output_artifacts
+    displayName: Create output artifact
+  - bash: >-      
+      sudo docker run --rm -w /tensorflow -v $(Build.SourcesDirectory):/tensorflow -v $(Build.SourcesDirectory)/output_artifacts:/artifacts tf "--tensorflow_version=2.0.0" "--artifact_dir=/artifacts"  "--lang=$(lang)"
+    displayName: Build tensorflow
+  - bash: mkdir -p $(Build.ArtifactStagingDirectory)/artifacts
+    displayName: Create the artifacts directory
+  - bash: >-
+      cp -rf $(Build.SourcesDirectory)/output_artifacts/* $(Build.ArtifactStagingDirectory)
+    displayName: Copy the artifacts to staging directory
+
+  - task: PublishBuildArtifacts@1
+    inputs:
+      PathtoPublish: $(Build.ArtifactStagingDirectory)
+      artifactName: tensorflow_$(Build.BuildId)
+
+  - task: GitHubRelease@0
+    inputs:
+      gitHubConnection: 'goyalankit'
+      repositoryName: '$(Build.Repository.Name)'
+      action: 'create'
+      target: '$(Build.SourceVersion)'
+      tagSource: 'manual'
+      tag: 'v$(MajorVersion).$(MinorVersion).$(IncrementReleaseTagNumber)-$(lang)'
+      changeLogCompareToRelease: 'lastFullRelease'
+      changeLogType: 'commitBased'
+      assets: '$(Build.ArtifactStagingDirectory)/*'
+
+
+
