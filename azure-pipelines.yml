@@ -33,7 +33,7 @@ jobs:
   - bash: mkdir -p $(Build.SourcesDirectory)/output_artifacts
     displayName: Create output artifact
   - bash: >-      
-      sudo docker run --rm -w /tensorflow -v $(Build.SourcesDirectory):/tensorflow -v $(Build.SourcesDirectory)/output_artifacts:/artifacts tf "--tensorflow_version=1.14.0" "--artifact_dir=/artifacts"  "--lang=$(lang)"
+      sudo docker run --rm -w /tensorflow -v $(Build.SourcesDirectory):/tensorflow -v $(Build.SourcesDirectory)/output_artifacts:/artifacts tf "--tensorflow_version=1.14" "--artifact_dir=/artifacts"  "--lang=$(lang)"
     displayName: Build tensorflow
   - bash: mkdir -p $(Build.ArtifactStagingDirectory)/artifacts
     displayName: Create the artifacts directory
