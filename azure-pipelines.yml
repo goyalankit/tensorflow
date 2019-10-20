@@ -47,9 +47,10 @@ jobs:
       cp -rf /home/tfadmin/dla/* $(Build.ArtifactStagingDirectory)
 
   - script: |      
+      set -x
       tf_lib_root=$(Build.ArtifactStagingDirectory)/artifacts/tensorflow-java/libs
       cp $(Build.ArtifactStagingDirectory)/libtensorflow.jar $tf_lib_root
-      chmod +w $tf_lib_root/tensorflow-java/libs/libtensorflow.jar
+      chmod +w $tf_lib_root/libtensorflow.jar
 
       linux_tmp_dir=$(mktemp -d /tmp/jni_linux.XXXXXX)
       linux_jni_subdir="org/tensorflow/native/linux-x86_64/"
