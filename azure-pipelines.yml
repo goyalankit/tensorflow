@@ -20,37 +20,60 @@ jobs:
     matrix: 
       java: 
         lang: java
-      python:
-        lang: python
+      # python:
+      #   lang: python
   timeoutInMinutes: 360
   displayName: Build and test tensorflow
-  steps:
-  - bash: sudo docker build /opt/linkedin/docker/ -t tf
-    displayName: Build Docker Image
-  - bash: mkdir -p $(Build.SourcesDirectory)/output_artifacts
-    displayName: Create output artifact
-  - bash: >-      
-      sudo docker run --rm -w /tensorflow -v $(Build.SourcesDirectory):/tensorflow -v $(Build.SourcesDirectory)/output_artifacts:/artifacts tf "--tensorflow_version=2.0.0" "--artifact_dir=/artifacts"  "--lang=$(lang)"
-    displayName: Build tensorflow
-  - bash: mkdir -p $(Build.ArtifactStagingDirectory)/artifacts
-    displayName: Create the artifacts directory
-  - bash: >-
-      cp -rf $(Build.SourcesDirectory)/output_artifacts/* $(Build.ArtifactStagingDirectory)
-    displayName: Copy the artifacts to staging directory
+  steps:    
+  # - bash: sudo docker build /opt/linkedin/docker/ -t tf
+  #   displayName: Build Docker Image
+  
+  # - bash: >- 
+  #   displayName: Create output artifact directory
+  #     mkdir -p $(Build.SourcesDirectory)/output_artifacts
+  #     mkdir -p $(Build.ArtifactStagingDirectory)/artifacts/tensorflow-java/libs
+  #     mkdir -p $(Build.ArtifactStagingDirectory)/artifacts/tensorflow-rhle7/libs
 
-  - task: PublishBuildArtifacts@1
-    inputs:
-      PathtoPublish: $(Build.ArtifactStagingDirectory)
-      artifactName: tensorflow_$(Build.BuildId)
+  # - bash: >-
+  #     sudo docker run --rm -w /tensorflow -v $(Build.SourcesDirectory):/tensorflow -v $(Build.SourcesDirectory)/output_artifacts:/artifacts tf "--tensorflow_version=2.0.0" "--artifact_dir=/artifacts"  "--lang=$(lang)"
+  #   displayName: Build tensorflow in docker
+    
+  # - bash: >-
+  #     cp -rf $(Build.SourcesDirectory)/output_artifacts/* $(Build.ArtifactStagingDirectory)
+  #   displayName: Copy the artifacts to staging directory
 
-  - task: GitHubRelease@0
-    inputs:
-      gitHubConnection: 'goyalankit'
-      repositoryName: '$(Build.Repository.Name)'
-      action: 'create'
-      target: '$(Build.SourceVersion)'
-      tagSource: 'manual'
-      tag: 'v$(MajorVersion).$(MinorVersion).$(IncrementReleaseTagNumber)-$(lang)'
-      changeLogCompareToRelease: 'lastFullRelease'
-      changeLogType: 'commitBased'
-      assets: '$(Build.ArtifactStagingDirectory)/*'
+  - script: |
+      tf_lib_root=$(Build.ArtifactStagingDirectory)/artifacts/tensorflow-java/libs
+      cp $(Build.ArtifactStagingDirectory)/libtensorflow.jar $tf_lib_root
+      chmod +w $tf_lib_root/tensorflow-java/libs/libtensorflow.jar
+
+      linux_tmp_dir=$(mktemp -d /tmp/jni_linux.XXXXXX)
+      linux_jni_subdir="org/tensorflow/native/linux-x86_64/"
+      linux_jni_dir="$linux_tmp_dir/$linux_jni_subdir"
+      mkdir -p "$linux_jni_dir"
+
+      cp $(Build.ArtifactStagingDirectory)/libtensorflow_jni.so "$linux_jni_dir"
+      jar uf $tf_lib_root/tensorflow-java/libs/libtensorflow.jar -C $linux_tmp_dir $linux_jni_subdir/libtensorflow_jni.so
+      
+      cp $(Build.ArtifactStagingDirectory)/libtensorflow_framework.so.1 "$linux_jni_dir"
+      jar uf $tf_lib_root/tensorflow-java/libs/libtensorflow.jar -C $linux_tmp_dir $linux_jni_subdir/libtensorflow_framework.so.1
+
+    condition: eq($(lang), "java")
+  
+
+  # - task: PublishBuildArtifacts@1
+  #   inputs:
+  #     PathtoPublish: $(Build.ArtifactStagingDirectory)
+  #     artifactName: tensorflow_$(Build.BuildId)
+
+  # - task: GitHubRelease@0
+  #   inputs:
+  #     gitHubConnection: 'goyalankit'
+  #     repositoryName: '$(Build.Repository.Name)'
+  #     action: 'create'
+  #     target: '$(Build.SourceVersion)'
+  #     tagSource: 'manual'
+  #     tag: 'v$(MajorVersion).$(MinorVersion).$(IncrementReleaseTagNumber)-$(lang)'
+  #     changeLogCompareToRelease: 'lastFullRelease'
+  #     changeLogType: 'commitBased'
+  #     assets: '$(Build.ArtifactStagingDirectory)/*'
