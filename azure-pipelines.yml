@@ -42,7 +42,7 @@ jobs:
   #     cp -rf $(Build.SourcesDirectory)/output_artifacts/* $(Build.ArtifactStagingDirectory)
   #   displayName: Copy the artifacts to staging directory
 
-  - script: |
+  - script: |      
       tf_lib_root=$(Build.ArtifactStagingDirectory)/artifacts/tensorflow-java/libs
       cp $(Build.ArtifactStagingDirectory)/libtensorflow.jar $tf_lib_root
       chmod +w $tf_lib_root/tensorflow-java/libs/libtensorflow.jar
@@ -58,7 +58,6 @@ jobs:
       cp $(Build.ArtifactStagingDirectory)/libtensorflow_framework.so.1 "$linux_jni_dir"
       jar uf $tf_lib_root/tensorflow-java/libs/libtensorflow.jar -C $linux_tmp_dir $linux_jni_subdir/libtensorflow_framework.so.1
 
-    condition: eq("${{ lang }}"", "java")
   
 
   # - task: PublishBuildArtifacts@1
