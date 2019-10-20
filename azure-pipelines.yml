@@ -20,8 +20,8 @@ jobs:
     matrix: 
       java: 
         lang: java
-      python:
-        lang: python
+      # python:
+      #   lang: python
   timeoutInMinutes: 360
   displayName: Build and test tensorflow
   steps:
