@@ -8,7 +8,7 @@ trigger:
 
 variables:
   MajorVersion: 1
-  MinorVersion: 0.0
+  MinorVersion: 14
   InitialReleaseTagNumber: 1
   IncrementReleaseTagNumber: $[counter(variables['InitialReleaseTagNumber'], 0)]
 
@@ -25,8 +25,8 @@ jobs:
   timeoutInMinutes: 360
   displayName: Build and test tensorflow
   steps:    
-  # - bash: sudo docker build /opt/linkedin/docker/ -t tf
-  #   displayName: Build Docker Image
+  - bash: sudo docker build /opt/linkedin/docker/ -t tf
+    displayName: Build Docker Image
   
   - script: |
       mkdir -p $(Build.SourcesDirectory)/output_artifacts
@@ -35,13 +35,13 @@ jobs:
 
     displayName: Create output artifact directory
 
-  # - bash: >-
-  #     sudo docker run --rm -w /tensorflow -v $(Build.SourcesDirectory):/tensorflow -v $(Build.SourcesDirectory)/output_artifacts:/artifacts tf "--tensorflow_version=2.0.0" "--artifact_dir=/artifacts"  "--lang=$(lang)"
-  #   displayName: Build tensorflow in docker
+  - bash: >-
+      sudo docker run --rm -w /tensorflow -v $(Build.SourcesDirectory):/tensorflow -v $(Build.SourcesDirectory)/output_artifacts:/artifacts tf "--tensorflow_version=2.0.0" "--artifact_dir=/artifacts"  "--lang=$(lang)"
+    displayName: Build tensorflow in docker
     
-  # - bash: >-
-  #     cp -rf $(Build.SourcesDirectory)/output_artifacts/* $(Build.ArtifactStagingDirectory)
-  #   displayName: Copy the artifacts to staging directory
+  - bash: >-
+      cp -rf $(Build.SourcesDirectory)/output_artifacts/* $(Build.ArtifactStagingDirectory)
+    displayName: Copy the artifacts to staging directory
 
   - script: |
       cp -rf /home/tfadmin/dla/* $(Build.ArtifactStagingDirectory)
@@ -61,23 +61,21 @@ jobs:
       jar uf $tf_lib_root/libtensorflow.jar -C $linux_tmp_dir $linux_jni_subdir/libtensorflow_jni.so
       
       cp $(Build.ArtifactStagingDirectory)/libtensorflow_framework.so.1.14.1 "$linux_jni_dir"
-      jar uf $tf_lib_root/libtensorflow.jar -C $linux_tmp_dir $linux_jni_subdir/libtensorflow_framework.so.1.14.1
+      jar uf $tf_lib_root/libtensorflow.jar -C $linux_tmp_dir $linux_jni_subdir/libtensorflow_framework.so.1.14.1  
 
+  - task: PublishBuildArtifacts@1
+    inputs:
+      PathtoPublish: $(Build.ArtifactStagingDirectory)
+      artifactName: tensorflow_$(Build.BuildId)
 
-
-  # - task: PublishBuildArtifacts@1
-  #   inputs:
-  #     PathtoPublish: $(Build.ArtifactStagingDirectory)
-  #     artifactName: tensorflow_$(Build.BuildId)
-
-  # - task: GitHubRelease@0
-  #   inputs:
-  #     gitHubConnection: 'goyalankit'
-  #     repositoryName: '$(Build.Repository.Name)'
-  #     action: 'create'
-  #     target: '$(Build.SourceVersion)'
-  #     tagSource: 'manual'
-  #     tag: 'v$(MajorVersion).$(MinorVersion).$(IncrementReleaseTagNumber)-$(lang)'
-  #     changeLogCompareToRelease: 'lastFullRelease'
-  #     changeLogType: 'commitBased'
-  #     assets: '$(Build.ArtifactStagingDirectory)/*'
+  - task: GitHubRelease@0
+    inputs:
+      gitHubConnection: 'goyalankit'
+      repositoryName: '$(Build.Repository.Name)'
+      action: 'create'
+      target: '$(Build.SourceVersion)'
+      tagSource: 'manual'
+      tag: 'v$(MajorVersion).$(MinorVersion).$(IncrementReleaseTagNumber)-$(lang)'
+      changeLogCompareToRelease: 'lastFullRelease'
+      changeLogType: 'commitBased'
+      assets: '$(Build.ArtifactStagingDirectory)/*'      
