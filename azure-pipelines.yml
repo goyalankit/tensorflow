@@ -58,10 +58,10 @@ jobs:
       mkdir -p "$linux_jni_dir"
 
       cp $(Build.ArtifactStagingDirectory)/libtensorflow_jni.so "$linux_jni_dir"
-      jar uf $tf_lib_root/tensorflow-java/libs/libtensorflow.jar -C $linux_tmp_dir $linux_jni_subdir/libtensorflow_jni.so
+      jar uf $tf_lib_root/libtensorflow.jar -C $linux_tmp_dir $linux_jni_subdir/libtensorflow_jni.so
       
       cp $(Build.ArtifactStagingDirectory)/libtensorflow_framework.so.1.14.1 "$linux_jni_dir"
-      jar uf $tf_lib_root/tensorflow-java/libs/libtensorflow.jar -C $linux_tmp_dir $linux_jni_subdir/libtensorflow_framework.so.1.14.1
+      jar uf $tf_lib_root/libtensorflow.jar -C $linux_tmp_dir $linux_jni_subdir/libtensorflow_framework.so.1.14.1
 
 
 
