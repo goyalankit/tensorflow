@@ -28,11 +28,12 @@ jobs:
   # - bash: sudo docker build /opt/linkedin/docker/ -t tf
   #   displayName: Build Docker Image
   
-  - bash: >- 
-    displayName: Create output artifact directory
+  - script: |
       mkdir -p $(Build.SourcesDirectory)/output_artifacts
       mkdir -p $(Build.ArtifactStagingDirectory)/artifacts/tensorflow-java/libs
       mkdir -p $(Build.ArtifactStagingDirectory)/artifacts/tensorflow-rhle7/libs
+
+    displayName: Create output artifact directory
 
   # - bash: >-
   #     sudo docker run --rm -w /tensorflow -v $(Build.SourcesDirectory):/tensorflow -v $(Build.SourcesDirectory)/output_artifacts:/artifacts tf "--tensorflow_version=2.0.0" "--artifact_dir=/artifacts"  "--lang=$(lang)"
