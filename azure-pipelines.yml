@@ -78,4 +78,4 @@ jobs:
       tag: 'v$(MajorVersion).$(MinorVersion).$(IncrementReleaseTagNumber)-$(lang)'
       changeLogCompareToRelease: 'lastFullRelease'
       changeLogType: 'commitBased'
-      assets: '$(Build.ArtifactStagingDirectory)/*'      
+      assets: '$(Build.ArtifactStagingDirectory)/artifacts/tensorflow-java/libs/libtensorflow.jar'
