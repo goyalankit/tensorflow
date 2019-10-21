@@ -20,8 +20,8 @@ stages:
     strategy:
       maxParallel: 2
       matrix:
-        java:
-          lang: java
+        # java:
+        #   lang: java
         python:
           lang: python
     timeoutInMinutes: 300
@@ -64,8 +64,8 @@ stages:
 - stage: prepare_and_publish_artifacts
   displayName: Prepare and publish artifacts
   jobs:
-    - job: prepare_and_publish_java
-      displayName: Prepare and publish java artifacts
+    - job: prepare_and_publish
+      displayName: Prepare and publish artifacts
       strategy:
         maxParallel: 2
         matrix:
