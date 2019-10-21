@@ -29,12 +29,12 @@ stages:
       displayName: Build docker image
 
     - script: |
-        mkdir -p $(Build.SourcesDirectory)/output_artifacts
-        mkdir -p $(Build.ArtifactStagingDirectory)/artifacts/tensorflow-java/libs
+        mkdir -p $(Build.SourcesDirectory)/output_artifacts
+        mkdir -p $(Build.ArtifactStagingDirectory)/artifacts/tensorflow-java/libs
       displayName: Create directories
     
     - bash: |
-        sudo docker run --rm -w /tensorflow -v $(Build.SourcesDirectory):/tensorflow -v $(Build.SourcesDirectory)/output_artifacts:/artifacts tf "--tensorflow_version=$(TensorfowVersion)" "--artifact_dir=/artifacts"  "--lang=$(lang)" 
+        sudo docker run --rm -w /tensorflow -v $(Build.SourcesDirectory):/tensorflow -v $(Build.SourcesDirectory)/output_artifacts:/artifacts tf "--tensorflow_version=$(TensorfowVersion)" "--artifact_dir=/artifacts" "--lang=$(lang)"
       displayName: Build tensorflow
     - task: ArchiveFiles@2
       inputs:
@@ -65,7 +65,7 @@ stages:
             itemPattern: 'tensorflow_java_*'
             downloadPath: '$(System.ArtifactsDirectory)'
         
-        - script: sudo bash /opt/linkedin/build_tf.sh --artifact_dir=$(System.ArtifactsDirectory) --tensorflow_version='$(TensorflowVersion)' --lang='java'
+        - script: sudo bash /opt/linkedin/build_tf.sh --artifact_dir=$(System.ArtifactsDirectory) --tensorflow_version='$(TensorflowVersion)' --lang='java'
           displayName: Create jar
 
         - task: GitHubRelease@0
