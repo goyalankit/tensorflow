@@ -16,12 +16,12 @@ stages:
 - stage: Build
   
   jobs:    
-  - job: build_java
+  - job: build
     strategy:
       maxParallel: 2
       matrix:
-        # java:
-        #   lang: java
+        java:
+          lang: java
         python:
           lang: python
     timeoutInMinutes: 300
