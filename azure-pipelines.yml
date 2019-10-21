@@ -72,16 +72,25 @@ stages:
     - job: prepare_and_publish_java
       displayName: Prepare and publish java artifacts
 
-      steps:        
+      steps:      
         - task: DownloadBuildArtifacts@0
           inputs:
             buildType: 'current'
             downloadType: 'single'
-            itemPattern: 'tensorflow_java_*'
+            itemPattern: '**/tensorflow_java*.tar.gz'
             downloadPath: '$(System.ArtifactsDirectory)'
-            artifactName: tensorflow_java_$(Build.BuildId).tar.gz
+            artifactName: tensorflow_java_$(Build.BuildId).tar.gz            
         
-        - script: sudo bash /opt/linkedin/build_tf.sh --artifact_dir=$(System.ArtifactsDirectory) --tensorflow_version='$(TensorflowVersion)' --lang='java'
+        - script: mkdir -p $(agent.builddirectory)/p
+          displayName: Create a preparation directory      
+
+        - task: ExtractFiles@1
+          inputs:
+            archiveFilePatterns: '$(System.ArtifactsDirectory)/*.tar.gz'
+            destinationFolder: '$(agent.builddirectory)/p'
+            cleanDestinationFolder: false
+
+        - bash: sudo bash /opt/linkedin/build_tf.sh --artifact_dir='$(System.builddirectory)'/p --tensorflow_version='$(TensorflowVersion)' --lang='java'
           displayName: Create jar
 
         - task: GitHubRelease@0
