@@ -50,7 +50,8 @@ stages:
         ArtifactName: tensorflow_java_$(Build.BuildId).zip
 
 
-- stage: Prepare and publish artifacts
+- stage: prepare_and_publish_artifacts
+  displayName: Prepare and publish artifacts
   jobs:
     - job: prepare_and_publish_java
       displayName: Prepare and publish java artifacts
