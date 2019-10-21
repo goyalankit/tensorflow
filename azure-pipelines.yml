@@ -25,8 +25,8 @@ stages:
       matrix:
         java:
           lang: java
-        python:
-          lang: python
+        # python:
+        #   lang: python
     timeoutInMinutes: 300
 
     steps:
@@ -51,13 +51,13 @@ stages:
         includeRootFolder: false 
         archiveType: 'tar'
         tarCompression: 'gz'
-        archiveFile: '$(Build.ArtifactStagingDirectory)/tensorflow_$(lang)_$(Build.BuildId).zip'
+        archiveFile: '$(Build.ArtifactStagingDirectory)/tensorflow_$(lang)_$(Build.BuildId).tar.gz'
         verbose: true
 
     - task: PublishBuildArtifacts@1
       inputs:
         PathtoPublish: $(Build.ArtifactStagingDirectory)
-        ArtifactName: tensorflow_$(lang)_$(Build.BuildId).zip
+        ArtifactName: tensorflow_$(lang)_$(Build.BuildId).tar.gz
 
 
 - stage: prepare_and_publish_artifacts
@@ -73,7 +73,7 @@ stages:
             downloadType: 'single'
             itemPattern: 'tensorflow_java_*'
             downloadPath: '$(System.ArtifactsDirectory)'
-            artifactName: tensorflow_java_$(Build.BuildId).zip
+            artifactName: tensorflow_java_$(Build.BuildId).tar.gz
         
         - script: sudo bash /opt/linkedin/build_tf.sh --artifact_dir=$(System.ArtifactsDirectory) --tensorflow_version='$(TensorflowVersion)' --lang='java'
           displayName: Create jar
