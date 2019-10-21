@@ -43,9 +43,6 @@ jobs:
       cp -rf $(Build.SourcesDirectory)/output_artifacts/* $(Build.ArtifactStagingDirectory)
     displayName: Copy the artifacts to staging directory
 
-  - script: |
-      cp -rf /home/tfadmin/dla/* $(Build.ArtifactStagingDirectory)
-
   - script: |      
       set -x
       tf_lib_root=$(Build.ArtifactStagingDirectory)/artifacts/tensorflow-java/libs
