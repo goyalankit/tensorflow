@@ -20,10 +20,10 @@ stages:
     strategy:
       maxParallel: 2
       matrix:
-        java:
-          lang: java
-        # python:
-        #   lang: python
+        # java:
+        #   lang: java
+        python:
+          lang: python
     timeoutInMinutes: 300
 
     steps:
@@ -66,17 +66,28 @@ stages:
   jobs:
     - job: prepare_and_publish_java
       displayName: Prepare and publish java artifacts
+      strategy:
+        maxParallel: 2
+        matrix:
+          java:
+            lang: java
+            sub_folder: tensorflow-java
+          python:
+            lang: python
+            sub_folder: tensorflow-rhel7
+      timeoutInMinutes: 300
+
 
       steps:      
         - task: DownloadBuildArtifacts@0
           inputs:
             buildType: 'current'
             downloadType: 'single'
-            itemPattern: '**/tensorflow_java*.tar.gz'
+            itemPattern: '**/tensorflow_$(lang)*.tar.gz'
             downloadPath: '$(System.ArtifactsDirectory)'
-            artifactName: tensorflow_java_$(Build.BuildId).tar.gz            
+            artifactName: tensorflow_$(lang)_$(Build.BuildId).tar.gz            
         
-        - script: mkdir -p $(agent.builddirectory)/p/artifacts/tensorflow-java/libs
+        - bash: mkdir -p $(agent.builddirectory)/p/artifacts/$(sub_folder)/libs
           displayName: Create a preparation directory      
 
         - task: ExtractFiles@1
@@ -85,7 +96,7 @@ stages:
             destinationFolder: '$(agent.builddirectory)/p'
             cleanDestinationFolder: false
 
-        - bash: sudo bash /opt/linkedin/build_tf.sh --artifact_dir=$(agent.builddirectory)/p --tensorflow_version='$(TensorflowVersion)' --lang='java'
+        - bash: sudo bash /opt/linkedin/build_tf.sh --artifact_dir=$(agent.builddirectory)/p --tensorflow_version='$(TensorflowVersion)' --lang='$(lang)'
           displayName: Create jar
 
         - task: GitHubRelease@0
@@ -95,7 +106,7 @@ stages:
             action: create
             target: $(Build.SourceVersion)
             tagSource: 'manual'
-            tag: v$(MajorVersion).$(MinorVersion).$(IncrementReleaseTagNumber)-java
+            tag: v$(MajorVersion).$(MinorVersion).$(IncrementReleaseTagNumber)-$(lang)
             changeLogCompareToRelease: lastFullRelease
             changeLogType: commitBased
-            assets: $(agent.builddirectory)/p/artifacts/tensorflow-java/libs/libtensorflow.jar
+            assets: $(agent.builddirectory)/p/artifacts/*
