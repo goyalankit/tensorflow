@@ -3,9 +3,6 @@
 # Add steps that build, run tests, deploy, and more:
 # https://aka.ms/yaml
 
-trigger:
-- master
-
 variables:
   TensorflowVersion: 1.14.1
   MajorVersion: 1
