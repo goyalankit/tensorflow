@@ -34,7 +34,7 @@ stages:
       displayName: Create directories
     
     - bash: |
-        sudo docker run --rm -w /tensorflow -v $(Build.SourcesDirectory):/tensorflow -v $(Build.SourcesDirectory)/output_artifacts:/artifacts tf "--tensorflow_version=$(TensorflowVersion)" "--artifact_dir=/artifacts" "--lang=$(lang)"
+        sudo docker run --rm -w /tensorflow -v $(Build.SourcesDirectory):/tensorflow -v $(Build.SourcesDirectory)/output_artifacts:/artifacts tf "--tensorflow_version=$(TensorflowVersion)" "--artifact_dir=/artifacts" "--lang=java"
       displayName: Build tensorflow
     - task: ArchiveFiles@2
       inputs:
@@ -75,7 +75,7 @@ stages:
             action: create
             target: $(Build.SourceVersion)
             tagSource: 'manual'
-            tag: v$(MajorVersion).$(MinorVersion).$(IncrementReleaseTagNumber)-$(lang)
+            tag: v$(MajorVersion).$(MinorVersion).$(IncrementReleaseTagNumber)-java
             changeLogCompareToRelease: lastFullRelease
             changeLogType: commitBased
             assets: $(System.ArtifactsDirectory)/artifacts/tensorflow-java/libs/libtensorflow.jar
