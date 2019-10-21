@@ -7,57 +7,73 @@ trigger:
 - master
 
 variables:
-  TensorfowVersion: 2.0.0
+  TensorflowVersion: 2.0.0
   MajorVersion: 1
   MinorVersion: 14
   InitialReleaseTagNumber: 1
   IncrementReleaseTagNumber: $[counter(variables['InitialReleaseTagNumber'], 0)]
 
 pool: AzurePool
-jobs:
-- job: build_tensorflow_java
-  strategy:
-    maxParallel: 3
-    matrix: 
-      java: 
-        lang: java
-      # python:
-      #   lang: python
-  timeoutInMinutes: 360
-  displayName: Build and test tensorflow
-  steps:    
-  - bash: sudo docker build /opt/linkedin/docker/ -t tf
-    displayName: Build Docker Image
+
+stages:
+- stage: Build
   
-  - script: |
-      mkdir -p $(Build.SourcesDirectory)/output_artifacts
-      mkdir -p $(Build.ArtifactStagingDirectory)/artifacts/tensorflow-java/libs
-      mkdir -p $(Build.ArtifactStagingDirectory)/artifacts/tensorflow-rhle7/libs
+  jobs:    
+  - job: build_java
+    timeoutInMinutes: 300
+    continueOnError: true
 
-    displayName: Create output artifact directory
+    steps:
+    - bash: sudo docker build /opt/linkedin/docker/ -t tf
+      displayName: Build docker image
 
-  - bash: >-
-      sudo docker run --rm -w /tensorflow -v $(Build.SourcesDirectory):/tensorflow -v $(Build.SourcesDirectory)/output_artifacts:/artifacts tf "--tensorflow_version=$(TensorfowVersion)" "--artifact_dir=/artifacts"  "--lang=$(lang)" 
-    displayName: Build tensorflow in docker
+    - script: |
+        mkdir -p $(Build.SourcesDirectory)/output_artifacts
+        mkdir -p $(Build.ArtifactStagingDirectory)/artifacts/tensorflow-java/libs
+      displayName: Create directories
     
-  - bash: >-
-      cp -rf $(Build.SourcesDirectory)/output_artifacts/* $(Build.ArtifactStagingDirectory)
-    displayName: Copy the artifacts to staging directory
+    - bash: |
+        sudo docker run --rm -w /tensorflow -v $(Build.SourcesDirectory):/tensorflow -v $(Build.SourcesDirectory)/output_artifacts:/artifacts tf "--tensorflow_version=$(TensorfowVersion)" "--artifact_dir=/artifacts"  "--lang=$(lang)" 
+      displayName: Build tensorflow
+    - task: ArchiveFiles@2
+      inputs:
+        rootFolderOrFile: '$(Build.SourcesDirectory)/output_artifacts' 
+        includeRootFolder: false 
+        archiveType: 'tar'
+        tarCompression: 'gz'
+        archiveFile: '$(Build.ArtifactStagingDirectory)/tensorflow_java_$(Build.BuildId).zip'
+        verbose: true
 
-  - script: sudo bash /opt/linkedin/build_tf.sh --artifact_dir=$(Build.ArtifactStagingDirectory) --tensorflow_version='$(TensorfowVersion)' --lang=$(lang)
-  - task: PublishBuildArtifacts@1
-    inputs:
-      PathtoPublish: $(Build.ArtifactStagingDirectory)
-      artifactName: tensorflow_$(Build.BuildId)
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: $(Build.ArtifactStagingDirectory)/*
+        ArtifactName: tensorflow_java_$(Build.BuildId).zip
 
-  - task: GitHubRelease@0
-    inputs:
-      gitHubConnection: 'goyalankit'
-      repositoryName: '$(Build.Repository.Name)'
-      action: 'create'
-      target: '$(Build.SourceVersion)'
-      tagSource: 'manual'
-      tag: 'v$(MajorVersion).$(MinorVersion).$(IncrementReleaseTagNumber)-$(lang)'
-      changeLogCompareToRelease: 'lastFullRelease'
-      changeLogType: 'commitBased'
-      assets: '$(Build.ArtifactStagingDirectory)/artifacts/tensorflow-java/libs/libtensorflow.jar'
+
+- stage: Prepare and publish artifacts
+  jobs:
+    - job: prepare_and_publish_java
+      displayName: Prepare and publish java artifacts
+
+      steps:        
+        - task: DownloadBuildArtifacts@0
+          inputs:
+            buildType: 'current'
+            downloadType: 'single'
+            itemPattern: 'tensorflow_java_*'
+            downloadPath: '$(System.ArtifactsDirectory)'
+        
+        - script: sudo bash /opt/linkedin/build_tf.sh --artifact_dir=$(System.ArtifactsDirectory) --tensorflow_version='$(TensorflowVersion)' --lang='java'
+          displayName: Create jar
+
+        - task: GitHubRelease@0
+          inputs:
+            gitHubConnection: 'goyalankit'
+            repositoryName: '$(Build.Repository.Name)'
+            action: create
+            target: $(Build.SourceVersion)
+            tagSource: 'manual'
+            tag: v$(MajorVersion).$(MinorVersion).$(IncrementReleaseTagNumber)-$(lang)
+            changeLogCompareToRelease: lastFullRelease
+            changeLogType: commitBased
+            assets: $(System.ArtifactsDirectory)/artifacts/tensorflow-java/libs/libtensorflow.jar
