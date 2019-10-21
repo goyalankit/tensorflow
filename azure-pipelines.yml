@@ -20,21 +20,30 @@ stages:
   
   jobs:    
   - job: build_java
+    strategy:
+      maxParallel: 2
+      matrix:
+        java:
+          lang: java
+        python:
+          lang: python
     timeoutInMinutes: 300
-    continueOnError: true
 
     steps:
     - bash: find /opt
+      displayName: '[Debug] Print the contents of /opt'
+
     - bash: sudo docker build /opt/linkedin/docker/ -t tf
       displayName: Build docker image
 
     - script: |
         mkdir -p $(Build.SourcesDirectory)/output_artifacts
         mkdir -p $(Build.ArtifactStagingDirectory)/artifacts/tensorflow-java/libs
+        mkdir -p $(Build.ArtifactStagingDirectory)/artifacts/tensorflow-rhel7/libs
       displayName: Create directories
     
     - bash: |
-        sudo docker run --rm -w /tensorflow -v $(Build.SourcesDirectory):/tensorflow -v $(Build.SourcesDirectory)/output_artifacts:/artifacts tf "--tensorflow_version=$(TensorflowVersion)" "--artifact_dir=/artifacts" "--lang=java"
+        sudo docker run --rm -w /tensorflow -v $(Build.SourcesDirectory):/tensorflow -v $(Build.SourcesDirectory)/output_artifacts:/artifacts tf "--tensorflow_version=$(TensorflowVersion)" "--artifact_dir=/artifacts" "--lang=$(lang)"
       displayName: Build tensorflow
     - task: ArchiveFiles@2
       inputs:
@@ -42,7 +51,7 @@ stages:
         includeRootFolder: false 
         archiveType: 'tar'
         tarCompression: 'gz'
-        archiveFile: '$(Build.ArtifactStagingDirectory)/tensorflow_java_$(Build.BuildId).zip'
+        archiveFile: '$(Build.ArtifactStagingDirectory)/tensorflow_$(lang)_$(Build.BuildId).zip'
         verbose: true
 
     - task: PublishBuildArtifacts@1
