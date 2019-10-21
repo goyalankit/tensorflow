@@ -13,7 +13,7 @@ variables:
   InitialReleaseTagNumber: 1
   IncrementReleaseTagNumber: $[counter(variables['InitialReleaseTagNumber'], 0)]
 
-pool: AzurePool
+pool: AzTfBuildPool
 
 stages:
 - stage: Build
