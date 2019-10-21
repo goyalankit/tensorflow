@@ -24,6 +24,7 @@ stages:
     continueOnError: true
 
     steps:
+    - bash: find /opt
     - bash: sudo docker build /opt/linkedin/docker/ -t tf
       displayName: Build docker image
 
