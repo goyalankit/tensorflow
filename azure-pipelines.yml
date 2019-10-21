@@ -7,6 +7,7 @@ trigger:
 - master
 
 variables:
+  TensorfowVersion: 2.0.0
   MajorVersion: 1
   MinorVersion: 14
   InitialReleaseTagNumber: 1
@@ -36,14 +37,14 @@ jobs:
     displayName: Create output artifact directory
 
   - bash: >-
-      sudo docker run --rm -w /tensorflow -v $(Build.SourcesDirectory):/tensorflow -v $(Build.SourcesDirectory)/output_artifacts:/artifacts tf "--tensorflow_version=2.0.0" "--artifact_dir=/artifacts"  "--lang=$(lang)"
+      sudo docker run --rm -w /tensorflow -v $(Build.SourcesDirectory):/tensorflow -v $(Build.SourcesDirectory)/output_artifacts:/artifacts tf "--tensorflow_version=$(TensorfowVersion)" "--artifact_dir=/artifacts"  "--lang=$(lang)"
     displayName: Build tensorflow in docker
     
   - bash: >-
       cp -rf $(Build.SourcesDirectory)/output_artifacts/* $(Build.ArtifactStagingDirectory)
     displayName: Copy the artifacts to staging directory
 
-  - script: sudo /opt/linkedin/build_tf.sh
+  - script: sudo sh /opt/linkedin/build_tf.sh --artifact_dir=$(Build.ArtifactStagingDirectory) --tensorflow_version='$(TensorfowVersion)' --lang=$(lang)
   - task: PublishBuildArtifacts@1
     inputs:
       PathtoPublish: $(Build.ArtifactStagingDirectory)
