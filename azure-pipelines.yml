@@ -37,7 +37,7 @@ jobs:
     displayName: Create output artifact directory
 
   - bash: >-
-      sudo docker run --rm -w /tensorflow -v $(Build.SourcesDirectory):/tensorflow -v $(Build.SourcesDirectory)/output_artifacts:/artifacts tf "--tensorflow_version=$(TensorfowVersion)" "--artifact_dir=/artifacts"  "--lang=$(lang)"
+      sudo docker run --rm -w /tensorflow -v $(Build.SourcesDirectory):/tensorflow -v $(Build.SourcesDirectory)/output_artifacts:/artifacts tf "--tensorflow_version=$(TensorfowVersion)" "--artifact_dir=/artifacts"  "--lang=$(lang)" 
     displayName: Build tensorflow in docker
     
   - bash: >-
